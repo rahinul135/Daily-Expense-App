@@ -1,0 +1,66 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Arrange files into folders
+        run: |
+          mkdir -p src www assets
+          if [ -f main.js ]; then mv main.js src/main.js; fi
+          if [ -f emailjs-config.js ]; then mv emailjs-config.js src/emailjs-config.js; fi
+          if [ -f index.html ]; then mv index.html www/index.html; fi
+          for f in icon-only.png icon-foreground.png icon-background.png; do
+            if [ -f "$f" ]; then mv "$f" assets/; fi
+          done
+          ls -R src www assets
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Keep the same signing key every build (so new APKs update the old app)
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: debug-keystore-v1
+
+      - name: Install packages
+        run: npm install --no-audit --no-fund
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Add Android project
+        run: npx cap add android
+
+      - name: Make app icons
+        run: npx capacitor-assets generate --android
+        continue-on-error: true
+
+      - name: Sync
+        run: npx cap sync android
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-expense-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
