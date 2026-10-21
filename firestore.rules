@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    // The one Super Admin: must sign in with this email AND have verified it.
+    function isSuper() {
+      return signedIn()
+        && request.auth.token.email == 'rahinul135@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function userDoc(uid) { return /databases/$(database)/documents/users/$(uid); }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(userDoc(request.auth.uid))
+        && get(userDoc(request.auth.uid)).data.role == 'admin';
+    }
+
+    // "View only" members cannot write. A brand-new user (no profile yet) can.
+    function canWrite() {
+      return !exists(userDoc(request.auth.uid))
+        || get(userDoc(request.auth.uid)).data.role != 'view';
+    }
+
+    function validEntry() {
+      let d = request.resource.data;
+      return d.type in ['expense', 'income']
+        && d.amt is number && d.amt > 0 && d.amt < 1000000000
+        && d.name is string && d.name.size() <= 120
+        && d.place is string && d.place.size() <= 160
+        && d.cat is string && d.cat.size() <= 60
+        && d.d is string && d.d.size() == 10
+        && d.t is string && d.t.size() <= 20;
+    }
+
+    function validLoan() {
+      let d = request.resource.data;
+      return d.type in ['get', 'owe']
+        && d.amt is number && d.amt > 0 && d.amt < 1000000000
+        && d.who is string && d.who.size() <= 80;
+    }
+
+    // Profiles: members see only their own. Admin/Super can see the user list.
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isSuper() || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['email', 'name', 'role', 'createdAt', 'photo', 'demo'])
+        && request.resource.data.email == request.auth.token.email
+        && (request.resource.data.role == 'member'
+            || (request.resource.data.role == 'super' && isSuper()));
+      // Members may change only their own name and photo. Only the Super Admin can change roles.
+      allow update: if signedIn() && (
+        isSuper()
+        || (request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'photo']))
+      );
+      allow delete: if isSuper();
+
+      // Each user's private data. The Super Admin can read everything.
+      match /entries/{id} {
+        allow read: if signedIn() && (request.auth.uid == uid || isSuper());
+        allow create, update: if signedIn() && request.auth.uid == uid && canWrite() && validEntry();
+        allow delete: if signedIn() && request.auth.uid == uid && canWrite();
+      }
+
+      match /loans/{id} {
+        allow read: if signedIn() && (request.auth.uid == uid || isSuper());
+        allow create, update: if signedIn() && request.auth.uid == uid && canWrite() && validLoan();
+        allow delete: if signedIn() && request.auth.uid == uid && canWrite();
+      }
+
+      match /notifs/{id} {
+        allow read: if signedIn() && (request.auth.uid == uid || isSuper());
+        allow create: if signedIn() && (request.auth.uid == uid || isSuper() || isAdmin());
+        allow update, delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    // Budget and alert limits: every member can set their own (not view-only); Admin/Super can set anyone's.
+    match /budgets/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isSuper() || isAdmin());
+      allow write: if (signedIn() && request.auth.uid == uid && canWrite()) || isSuper() || isAdmin();
+    }
+
+    // Shared category list: everyone reads, every member (not view-only) can add/delete.
+    match /settings/{docId} {
+      allow read: if signedIn();
+      allow write: if signedIn() && canWrite();
+    }
+  }
+}

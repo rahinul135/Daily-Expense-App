@@ -1,0 +1,7 @@
+{
+  "appId": "daily.expense.management",
+  "appName": "Daily Expense",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": { "adjustMarginsForEdgeToEdge": "auto" }
+}

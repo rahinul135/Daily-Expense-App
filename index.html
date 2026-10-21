@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daily Expense</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bgg:radial-gradient(60% 40% at 8% 0%,rgba(168,130,255,.6),transparent 62%),radial-gradient(50% 35% at 100% 28%,rgba(255,140,200,.5),transparent 62%),radial-gradient(60% 40% at 0% 82%,rgba(255,190,100,.4),transparent 62%),linear-gradient(160deg,#EDE4FB,#F8E7F3 55%,#E2EEFC);
+--gl:rgba(255,255,255,.58);--glb:rgba(255,255,255,.8);--solid:#fff;--navbg:rgba(255,255,255,.66);--ink:#1E1535;--mut:#5F5879;--line:rgba(108,59,239,.16);--pri:#6C3BEF;--dn:#C92A5E;--up:#0B7A57;--inp:rgba(255,255,255,.65);--sh:rgba(76,34,201,.42);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bgg:radial-gradient(60% 40% at 8% 0%,rgba(108,59,239,.55),transparent 62%),radial-gradient(50% 35% at 100% 28%,rgba(255,95,168,.3),transparent 62%),radial-gradient(60% 40% at 0% 82%,rgba(255,154,31,.22),transparent 62%),#0E0820;--gl:rgba(255,255,255,.07);--glb:rgba(255,255,255,.16);--solid:#231A3B;--navbg:rgba(34,22,70,.6);--ink:#F2EEFC;--mut:#B4ABD0;--line:rgba(255,255,255,.13);--pri:#A88BFF;--dn:#FF7AA3;--up:#4ADE9E;--inp:rgba(255,255,255,.07);--sh:rgba(0,0,0,.75);color-scheme:dark}}
+:root[data-theme="dark"]{--bgg:radial-gradient(60% 40% at 8% 0%,rgba(108,59,239,.55),transparent 62%),radial-gradient(50% 35% at 100% 28%,rgba(255,95,168,.3),transparent 62%),radial-gradient(60% 40% at 0% 82%,rgba(255,154,31,.22),transparent 62%),#0E0820;--gl:rgba(255,255,255,.07);--glb:rgba(255,255,255,.16);--solid:#231A3B;--navbg:rgba(34,22,70,.6);--ink:#F2EEFC;--mut:#B4ABD0;--line:rgba(255,255,255,.13);--pri:#A88BFF;--dn:#FF7AA3;--up:#4ADE9E;--inp:rgba(255,255,255,.07);--sh:rgba(0,0,0,.75);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bgg) fixed;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:430px;margin:0 auto;padding:18px 16px 150px;min-height:100vh}
+.s{display:none;flex-direction:column;gap:14px}.s.on{display:flex}
+.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.card,.tl{background:var(--gl);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);border:1px solid var(--glb);border-radius:24px;padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 18px 34px -24px var(--sh)}
+.r{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.m{font-size:12px;color:var(--mut)}
+h1{font-size:19px;margin:0}h2{font-size:15px;font-weight:800;margin:0}
+button{font:inherit;color:inherit;cursor:pointer;text-align:left}
+button:disabled,select:disabled,input:disabled{opacity:.55;cursor:not-allowed}
+.btn{border:0;border-radius:18px;min-height:50px;padding:0 20px;width:100%;color:#2B1670;font-weight:800;font-size:15px;background:linear-gradient(90deg,#FF9A1F,#FFC107);box-shadow:0 14px 22px -12px rgba(255,150,20,.9);display:flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn.sm{min-height:38px;padding:0 14px;font-size:13px;width:auto;border-radius:14px}
+.btn.d{background:rgba(255,95,150,.18);color:var(--dn);box-shadow:none}
+.sq{width:46px;height:46px;border-radius:50%;border:1px solid var(--glb);background:var(--gl);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:0;position:relative;flex:none}
+.bd{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#FF3D7F;color:#fff;font-size:11px;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px}
+input,select{font:inherit;width:100%;min-height:48px;border-radius:14px;border:1px solid var(--glb);background:var(--inp);padding:0 14px;color:var(--ink)}
+select{width:auto;min-height:40px;border-radius:12px;padding:0 8px;background:var(--solid);color:var(--ink);border:1px solid var(--line)}
+option{background:var(--solid);color:var(--ink)}
+input[type=range]{padding:0;min-height:32px;accent-color:#6C3BEF}
+.chip{border:1px solid var(--glb);padding:9px 14px;border-radius:14px;background:var(--gl);font-size:13px;font-weight:700;text-align:center}
+.chip.on{background:linear-gradient(145deg,#7B4DF5,#4B22C9);color:#fff;border-color:transparent}
+.chip.add{border:1.5px dashed var(--mut);color:var(--mut);background:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.lnk{border:0;background:none;color:var(--pri);font-size:13px;font-weight:700;padding:6px}
+.bar{height:12px;border-radius:8px;background:var(--line);margin:10px 0 6px;overflow:hidden}.bar i{display:block;height:100%;border-radius:8px}
+.dn{color:var(--dn)}.up{color:var(--up)}
+.av{width:50px;height:50px;border-radius:16px;background:linear-gradient(145deg,#7B4DF5,#4B22C9) center/cover;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;border:2px solid #FFB02E;flex:none;padding:0}
+.row{width:100%;display:flex;align-items:center;gap:12px;padding:11px 0;border:0;border-bottom:1px solid var(--line);background:none}.row:last-child{border-bottom:0}
+.row .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.row small{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.row .nt{font-style:italic}
+.dot{width:42px;height:42px;border-radius:14px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.hero{position:relative;overflow:hidden;background:radial-gradient(90% 80% at 100% 0%,rgba(255,170,60,.45),transparent 55%),linear-gradient(150deg,rgba(123,77,245,.95),rgba(75,34,201,.95));color:#fff;border-radius:28px;padding:20px;border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 26px 32px -18px rgba(76,34,201,.9)}
+.hero .bx{flex:1;background:rgba(255,255,255,.16);border-radius:16px;padding:10px 12px}
+.hero2{width:100%;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.3);border-radius:28px;padding:20px;color:#fff;text-align:left;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 26px 32px -18px rgba(76,34,201,.9)}.hero2.pw{background:radial-gradient(90% 80% at 100% 0%,rgba(255,176,46,.5),transparent 55%),linear-gradient(150deg,#7B4DF5,#4B22C9)}.hero2.dh{background:radial-gradient(90% 80% at 100% 0%,rgba(255,176,46,.45),transparent 55%),linear-gradient(150deg,#D63B78,#8E1A55)}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tl{width:100%;padding:14px;display:flex;flex-direction:column;gap:4px;min-height:112px}
+.tl .v{font-size:26px;font-weight:800}.tl .l{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}.tl .sb{font-size:12px;color:var(--mut);margin-top:auto}
+.tl.hi{background:linear-gradient(145deg,rgba(100,60,240,.95),rgba(50,30,190,.95));color:#fff;border-color:rgba(255,255,255,.3)}.tl.hi .sb{color:#DCD0FF}
+.sec{display:flex;justify-content:space-between;align-items:center}
+.sec .r{justify-content:flex-start}
+.ic{width:38px;height:38px;border-radius:12px;background:var(--gl);border:1px solid var(--glb);display:flex;align-items:center;justify-content:center;flex:none}
+.cols{display:flex;gap:8px;align-items:flex-end;height:96px;margin-top:10px}
+.cols div{flex:1;text-align:center;font-size:11px;color:var(--mut);display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.cols i{display:block;border-radius:8px 8px 4px 4px;background:linear-gradient(#9B7BFF,#5B2BE0);margin-bottom:4px;min-height:4px}.cols .hot i{background:linear-gradient(#FFC107,#FF8A00)}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin-top:10px}.lg span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:5px}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px}
+.dc{min-width:56px;padding:10px 0;border-radius:18px;background:var(--gl);border:1px solid var(--glb);display:flex;flex-direction:column;align-items:center;gap:2px}
+.dc small{font-size:11px;color:var(--mut)}.dc b{font-size:17px}
+.dc.on{background:linear-gradient(145deg,#7B4DF5,#4B22C9);color:#fff;border-color:transparent;box-shadow:0 0 18px rgba(108,59,239,.55)}.dc.on small{color:#E4DAFF}
+.warn{background:rgba(255,176,46,.22);border:1px solid rgba(255,176,46,.5);color:var(--ink);border-radius:18px;padding:12px 14px;font-weight:700;font-size:13px;display:none;align-items:center;gap:8px}.warn.on{display:flex}
+.lock{background:rgba(108,59,239,.14);border:1px solid var(--line);border-radius:16px;padding:12px 14px;font-size:13px;font-weight:700}
+.seg{display:flex;background:var(--line);border-radius:16px;padding:4px}
+.seg button{flex:1;border:0;background:none;padding:10px;border-radius:12px;font-weight:700;text-align:center}
+.seg button.on{background:var(--gl);box-shadow:0 4px 10px -6px var(--sh);border:1px solid var(--glb)}
+.sw{width:48px;height:30px;border-radius:15px;border:0;padding:3px;display:flex;align-items:center;background:#A59CBF;flex:none}
+.sw[aria-checked="true"]{background:#6C3BEF;justify-content:flex-end}
+.sw i{width:24px;height:24px;border-radius:50%;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:6px 3px;border-bottom:1px solid var(--line)}td:last-child,th:last-child{text-align:right}
+.lt td,.lt th{text-align:center}.lt td:first-child,.lt th:first-child{text-align:left}
+.nrow{width:100%;display:flex;gap:12px;align-items:center;padding:12px 0;border:0;border-bottom:1px solid var(--line);background:none}.nrow:last-child{border:0}
+.nrow .nd{width:10px;height:10px;border-radius:50%;background:#FF3D7F;flex:none;box-shadow:0 0 8px #FF3D7F}.nrow.rd .nd{background:transparent;box-shadow:none}.nrow.rd b{font-weight:500;color:var(--mut)}
+.nrow .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.nrow small{font-size:12px;color:var(--mut)}
+.n2{width:38px;height:38px;border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+#nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(396px,calc(100% - 24px));height:70px;border-radius:35px;background:var(--navbg);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border:1px solid var(--glb);box-shadow:0 22px 36px -14px rgba(40,10,120,.6),inset 0 1px 0 rgba(255,255,255,.4);display:none;justify-content:space-around;align-items:center;padding:0 6px;z-index:5}
+#nav.on{display:flex}
+#nav button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--mut);padding:8px 11px;border-radius:28px}
+#nav button.on{background:linear-gradient(145deg,#7B4DF5,#4B22C9);color:#fff;box-shadow:0 0 24px rgba(108,59,239,.75),inset 0 1px 0 rgba(255,255,255,.4)}
+#nav #fab{width:62px;height:62px;margin-top:-34px;border-radius:50%;border:3px solid rgba(255,255,255,.55);background:linear-gradient(145deg,#FFB02E,#FF8A00);color:#2B1670;display:none;align-items:center;justify-content:center;padding:0;flex:none;box-shadow:0 0 26px rgba(255,150,20,.75),0 14px 20px -8px rgba(255,138,0,.9),inset 0 2px 0 rgba(255,255,255,.5)}
+#nav #fab.on{display:flex}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:120px;background:#1E1535;color:#fff;padding:10px 16px;border-radius:14px;font-size:13px;font-weight:600;display:none;z-index:30;max-width:90%;text-align:center}
+.ov{position:fixed;inset:0;background:rgba(25,12,60,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.ov.on{display:flex}
+.pc{width:100%;max-width:380px;background:var(--solid);border-radius:28px;overflow:hidden;box-shadow:0 30px 50px -20px rgba(0,0,0,.6)}
+.pc .hd{background:linear-gradient(150deg,#7B4DF5,#4B22C9);color:#fff;padding:18px 18px 22px;position:relative}
+.pc .bd2{padding:6px 18px 4px}
+.pc .x{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;padding:0}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}.kv:last-child{border:0}.kv span:first-child{color:var(--mut)}.kv span:last-child{text-align:right;font-weight:700}
+.pc .ed{font:inherit;background:transparent;border:0;border-bottom:1.5px dashed var(--mut);border-radius:0;min-height:34px;width:auto;max-width:190px;padding:0 2px;text-align:right;color:var(--ink);font-weight:700}
+.pc .hd .ed{color:#fff;border-bottom-color:rgba(255,255,255,.7)}
+.pc .hd .ed.big{font-size:34px;font-weight:800;width:170px;text-align:left;min-height:48px}
+#pn .ed{width:100%;max-width:none;text-align:left;font-size:16px;font-weight:600}
+.pc select.ed{background:var(--solid);border:1px solid var(--line);border-radius:10px;padding:0 8px}
+#pedit{top:56px;right:12px}#pedit.act{background:#FFB02E;color:#2B1670}
+#pa{align-items:center;gap:4px}
+.nc{display:none;gap:8px}.nc.on{display:flex}.nc input{flex:1}
+#splash,#login,#verify{min-height:calc(100vh - 168px);justify-content:center}
+@supports(height:100dvh){#splash,#login,#verify{min-height:calc(100dvh - 168px)}}
+.spn{width:34px;height:34px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--pri);animation:spn .8s linear infinite;margin:6px auto 0}
+@keyframes spn{to{transform:rotate(360deg)}}
+.pwb{position:relative}.pwb input{padding-right:50px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;background:none;color:var(--mut);display:flex;align-items:center;justify-content:center;padding:0}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+<symbol id="chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+<symbol id="bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+<symbol id="cam" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+<symbol id="shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+<symbol id="back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+<symbol id="dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+<symbol id="out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+<symbol id="swap" viewBox="0 0 24 24"><path d="M7 7h13l-3-3M17 17H4l3 3"/></symbol>
+<symbol id="target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></symbol>
+<symbol id="edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+<symbol id="chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+<symbol id="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="eyeoff" viewBox="0 0 24 24"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 20C5 20 1 12 1 12a18.5 18.5 0 0 1 5.1-5.9M9.9 4.2A9.1 9.1 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2M1 1l22 22"/></symbol>
+<symbol id="lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+</defs></svg>
+<div id="app">
+
+<section class="s on" id="splash">
+<div class="hero" style="padding:34px 22px"><div style="font-size:30px;font-weight:800">Daily Expense</div><div style="margin-top:6px;opacity:.9">Your money manager</div></div>
+<div class="spn" role="status" aria-label="Loading"></div>
+</section>
+<section class="s" id="login">
+<div class="hero" style="padding:34px 22px"><div style="font-size:30px;font-weight:800">Daily Expense</div><div style="margin-top:6px;opacity:.9">Your money manager</div></div>
+<div class="seg" id="aseg"><button type="button" class="on" data-am="in" data-t="signIn">Sign in</button><button type="button" data-am="up" data-t="createAcc">Create account</button></div>
+<form class="card" id="aForm" autocomplete="on" novalidate style="display:flex;flex-direction:column;gap:10px">
+<label class="m" id="nmL" for="aName" data-t="yourName" style="display:none">Your name</label><input id="aName" name="name" type="text" autocomplete="name" maxlength="60" style="display:none">
+<label class="m" for="em" data-t="email">Email</label><input id="em" name="email" type="email" autocomplete="username" inputmode="email">
+<label class="m" for="pw" data-t="pw">Password</label><div class="pwb"><input id="pw" name="password" type="password" autocomplete="current-password"><button type="button" class="eye" id="pwEye" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></div>
+<div class="warn" id="aErr" role="alert"></div>
+<button type="submit" class="btn" id="aGo" style="margin-top:6px">Sign in</button>
+<button type="button" class="lnk" id="aForgot" style="text-align:center" data-t="forgot">Forgot password?</button></form>
+</section>
+<section class="s" id="verify">
+<div class="hero" style="padding:28px 22px"><div style="font-size:22px;font-weight:800" data-t="verT">Verify your email</div><div style="margin-top:8px;opacity:.95" data-t="verD">We sent a 6-digit code to your email. Enter it below.</div><b id="vEm" style="display:block;margin-top:6px;word-break:break-all"></b></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><label class="m" for="vCode" data-t="verCodeL">Verification code</label><input id="vCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="······" style="text-align:center;font-size:28px;font-weight:800;letter-spacing:10px"></div>
+<button type="button" class="btn" id="vGo" data-t="verGo">Verify</button>
+<button type="button" class="btn sm d" id="vResend" data-t="verResend" style="width:100%">Resend code</button>
+<button type="button" class="lnk" id="vOut" style="text-align:center" data-t="logout">Log out</button>
+</section>
+
+<section class="s" id="home">
+<div class="r"><div class="r" style="gap:12px"><button class="av" data-go="profile" aria-label="Open profile">S</button><div><b id="uName" style="font-size:17px"></b><div class="m" id="roleLine"></div></div></div>
+<div class="r"><button class="sq" data-theme aria-label="Switch light or dark mode"><svg class="i"><use href="#moon"/></svg></button><button class="sq" data-go="notif" aria-label="Notifications"><svg class="i"><use href="#bell"/></svg><span class="bd" id="bd"></span></button></div></div>
+<div class="hero"><div class="r"><span style="font-size:13px" data-t="balance">Balance</span><span style="font-size:12px;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:10px" id="mlab"></span></div>
+<div id="bal" style="font-size:36px;font-weight:800;margin:6px 0 16px">৳0</div>
+<div class="r"><div class="bx"><div style="font-size:12px" data-t="income">Income</div><b id="inc" style="color:#A8F5D2">৳0</b></div><div class="bx"><div style="font-size:12px" data-t="expense">Expense</div><b id="exp" style="color:#FFD0DD">৳0</b></div></div></div>
+<div class="warn" id="warn"><svg class="i"><use href="#bell"/></svg><span id="warnT"></span></div>
+<div class="sec"><div class="r"><span class="ic"><svg class="i"><use href="#swap"/></svg></span><h2 data-t="tracker">Tracker</h2></div><button class="lnk" data-go="reports" data-t="viewAll">View all</button></div>
+<div class="tg">
+<button class="tl hi" data-go="reports"><span class="l"><svg class="i" style="width:18px;height:18px"><use href="#chart"/></svg><span data-t="dailyAvg">Daily average</span></span><span class="v" id="avg"></span><span class="sb" id="avgS"></span></button>
+<button class="tl" data-go="history"><span class="l" data-t="today">Today</span><span class="v" id="tdy"></span><span class="sb" id="tdyS"></span></button>
+<button class="tl" data-dgo="get"><span class="l up" data-t="pawna">Pawna</span><span class="v" id="paw"></span><span class="sb" id="pawS"></span></button>
+<button class="tl" data-dgo="owe"><span class="l dn" data-t="dhar">Dhar</span><span class="v" id="dhr"></span><span class="sb" id="dhrS"></span></button></div>
+<div class="card"><div class="r"><h2 data-t="last7">Last 7 days</h2><span class="m" id="wk"></span></div><div class="cols" id="cols"></div></div>
+<button class="card" data-go="reports" style="width:100%"><h2 data-t="budgetMon">Budget monitor</h2><div style="margin-top:8px"><span id="bBig" style="font-size:30px;font-weight:800"></span><span class="m"> / 100 %</span></div><div class="bar"><i id="bBar" style="width:0"></i></div><div class="lg" id="bLg"></div><div class="r m" style="margin-top:10px"><span id="bUsed"></span><span id="bLeft"></span></div></button>
+<div class="strip" id="strip"></div>
+<div class="card"><div class="r" style="margin-bottom:4px"><div><h2 id="dayT"></h2><div class="m" id="dayS"></div></div><button class="btn sm wr" data-go="add"><svg class="i" style="width:16px;height:16px"><use href="#plus"/></svg><span data-t="add">Add</span></button></div><div id="today"></div></div>
+</section>
+
+<section class="s" id="notif">
+<div class="r"><button class="sq" data-go="home" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><h1 data-t="notifT">Notifications</h1><button class="lnk" id="markAll" data-t="markAll">Mark all as read</button></div>
+<div class="card" id="nl"></div>
+</section>
+
+<section class="s" id="add">
+<div class="r"><button class="sq" data-go="home" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><h1 data-t="addentry">Add entry</h1><span class="chip" id="aDate"></span></div>
+<div class="seg" id="kind"><button class="on" data-k="expense" data-t="expense">Expense</button><button data-k="income" data-t="income">Income</button></div>
+<div class="card" style="text-align:center"><label class="m" for="eAmt" data-t="amount">Amount</label><div class="r" style="justify-content:center"><span id="cur" class="dn" style="font-size:34px;font-weight:800">৳</span><input id="eAmt" type="number" inputmode="decimal" placeholder="0" style="width:170px;border:0;background:none;font-size:44px;font-weight:800;text-align:center;min-height:60px"></div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><label class="m" for="eName" data-t="name">What for?</label><input id="eName" type="text" placeholder="e.g. Groceries"><label class="m" for="ePlc" data-t="place">Where did you spend?</label><input id="ePlc" type="text" placeholder="e.g. Shwapno, Dhanmondi"><div class="chips" id="places"></div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><b style="font-size:14px" data-t="category">Category</b><div class="chips" id="acats"></div><div class="nc" id="ncRow"><input id="ncName" type="text" placeholder="New category name" aria-label="New category name"><button class="btn sm" id="ncAdd" data-t="add">Add</button></div><label class="m" for="eNote" data-t="note">Note (optional)</label><input id="eNote" type="text" placeholder="Write a note"></div>
+<button class="btn" id="save"><svg class="i"><use href="#plus"/></svg><span data-t="save">Save entry</span></button>
+</section>
+
+<section class="s" id="history">
+<h1 data-t="history">History</h1>
+<input id="q" type="search" data-p="search" placeholder="Search">
+<div class="chips" id="flt"><button class="chip on" data-f="all" data-t="all">All</button><button class="chip" data-f="expense" data-t="expense">Expense</button><button class="chip" data-f="income" data-t="income">Income</button><button class="chip" data-f="get" data-t="pawna">Pawna</button><button class="chip" data-f="owe" data-t="dhar">Dhar</button></div>
+<div class="card" id="hl"></div>
+</section>
+
+<section class="s" id="alerts">
+<div class="r"><button class="sq" data-go="profile" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><h1 data-t="alertsT">Budget, alerts and setup</h1><span style="width:46px"></span></div>
+<div class="card"><div class="m" data-t="spent">Spent this month</div><div id="b1" style="font-size:28px;font-weight:800"></div><div class="bar"><i id="b2" style="width:0"></i></div><div class="r m"><span id="b3"></span><span id="b4"></span></div></div>
+<div class="lock r" id="bLock" style="justify-content:flex-start"><svg class="i"><use href="#lock"/></svg><span data-t="viewLock">Your role (view only) cannot change this</span></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2 data-t="editbudget">Edit budget</h2><label class="m" for="bLimit" data-t="limit">Monthly limit (৳)</label><input id="bLimit" type="number" inputmode="numeric"><label class="m" for="bAlert"><span data-t="alertat">Alert at</span> <b id="bAlertOut"></b></label><input id="bAlert" type="range" min="50" max="100" step="5"><div class="r"><b data-t="alertOn">Alert me near the limit</b><button class="sw" role="switch" id="bOn" aria-checked="true" aria-label="Alert me near the limit"><i></i></button></div><div class="m" data-t="a1d">Warn when spending reaches this percent of the monthly budget</div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="r"><h2 data-t="a2">Pawna alert (amount)</h2><button class="sw" role="switch" id="pOn" aria-checked="true" aria-label="Pawna alert"><i></i></button></div><label class="m" for="pLim" data-t="pLimL">Warn when total pawna reaches (৳)</label><input id="pLim" type="number" inputmode="numeric"></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="r"><h2 data-t="a3">Dhar alert (amount)</h2><button class="sw" role="switch" id="dOn" aria-checked="true" aria-label="Dhar alert"><i></i></button></div><label class="m" for="dLim" data-t="dLimL">Warn when total dhar reaches (৳)</label><input id="dLim" type="number" inputmode="numeric"></div>
+<button class="btn" id="bSave" data-t="saveBudget">Save settings</button>
+</section>
+
+<section class="s" id="dharbaki">
+<div class="r"><button class="sq" data-go="home" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><h1 data-t="dharT">Dhar and Pawna</h1><span style="width:46px"></span></div>
+<div class="seg" id="dtabs"><button class="on" data-d="get" data-t="pawna">Pawna</button><button data-d="owe" data-t="dhar">Dhar</button></div>
+<button class="hero2 pw" id="dSumCard" data-hist aria-label="Open list in History"><div class="r"><span id="dSumL" style="font-size:13px;font-weight:700"></span><span style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center"><svg class="i" style="width:18px;height:18px"><use href="#chev"/></svg></span></div><div id="dSum" style="font-size:38px;font-weight:800;margin:6px 0 12px"></div><div class="bar" style="background:rgba(255,255,255,.25);margin:0 0 8px"><i id="dBar" style="width:0;background:#FFC107"></i></div><div class="r" style="font-size:12px"><span id="dSumS" style="background:rgba(255,255,255,.22);padding:4px 10px;border-radius:10px"></span><span id="dLim"></span></div></button>
+<div class="warn" id="dWarn"><svg class="i"><use href="#bell"/></svg><span id="dWarnT"></span></div>
+<div id="dlist" style="display:none"></div>
+<div class="card wr" style="display:flex;flex-direction:column;gap:10px"><label class="m" for="lWho" data-t="who">Person name</label><input id="lWho" type="text" placeholder="Name"><label class="m" for="lAmt" data-t="amount">Amount</label><input id="lAmt" type="number" inputmode="numeric" placeholder="0"><label class="m" for="lNote" data-t="note">Note (optional)</label><input id="lNote" type="text" placeholder="Note"><button class="btn" id="lAdd" style="margin-top:14px"><span id="lAddT"></span></button></div>
+</section>
+
+<section class="s" id="savings">
+<div class="r"><button class="sq" data-go="home" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><h1 data-t="savingsT">Savings</h1><span style="width:46px"></span></div>
+<div class="card"><div class="r"><h2>New phone</h2><b>60%</b></div><div class="bar"><i style="width:60%;background:linear-gradient(90deg,#7B4DF5,#4B22C9)"></i></div><div class="m">৳18,000 of ৳30,000</div></div>
+<div class="card"><div class="r"><h2>Emergency fund</h2><b>35%</b></div><div class="bar"><i style="width:35%;background:linear-gradient(90deg,#FFB02E,#FF8A00)"></i></div><div class="m">৳35,000 of ৳100,000</div></div>
+<div class="card"><div class="r"><h2>Family trip</h2><b>20%</b></div><div class="bar"><i style="width:20%;background:linear-gradient(90deg,#FF5FA8,#D6336C)"></i></div><div class="m">৳10,000 of ৳50,000</div></div>
+</section>
+
+<section class="s" id="reports">
+<h1 data-t="reports">Reports</h1>
+<div class="card"><h2 data-t="byCat">Spending by category</h2><div id="rc" style="margin-top:6px"></div></div>
+<div class="card"><h2 data-t="pdfT">Monthly PDF sheet</h2><div class="r" style="margin:4px 0 10px"><span class="m" id="rLab"></span><input type="month" id="rMon" style="width:auto;min-height:38px"></div><div style="background:#fff;color:#1E1535;border-radius:14px;padding:12px"><table style="color:#1E1535"><thead><tr><th>Date</th><th>Name</th><th>Category</th><th>Amount</th></tr></thead><tbody id="pdf"></tbody></table></div><button class="btn" id="pdfBtn" style="margin-top:12px"><svg class="i"><use href="#dl"/></svg><span data-t="dl">Download PDF</span></button></div>
+</section>
+
+<section class="s" id="profile">
+<h1 data-t="profile">Profile</h1>
+<div class="card" style="text-align:center"><div class="av" id="bigav" style="width:96px;height:96px;font-size:36px;border-radius:30px;margin:0 auto 10px">S</div><b id="uName2" style="font-size:18px"></b><div class="m" id="roleLine2"></div><input type="file" id="pf" accept="image/*" style="display:none"><button class="btn sm" id="pick" style="margin:12px auto 0"><svg class="i" style="width:16px;height:16px"><use href="#cam"/></svg><span data-t="photo">Change photo</span></button></div>
+<div class="card"><div class="r" style="padding:6px 0"><b data-t="darkmode">Dark mode</b><button class="sw" role="switch" aria-checked="false" data-theme aria-label="Dark mode"><i></i></button></div><div class="r" style="padding:10px 0"><b data-t="language">Language</b><div class="chips" id="langs"><button class="chip on" data-lang="en">English</button><button class="chip" data-lang="bn">বাংলা</button></div></div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2 data-t="categories">Manage categories</h2><div class="seg" id="cmk"><button class="on" data-cmk="expense" data-t="expense">Expense</button><button data-cmk="income" data-t="income">Income</button></div><div id="cm"></div><div class="lock r" id="cmNote" style="justify-content:flex-start"><svg class="i"><use href="#lock"/></svg><span data-t="catNote">View-only members cannot add or delete categories</span></div><div class="r" id="cmEdit"><input id="cmName" type="text" placeholder="New category name" aria-label="New category name"><button class="btn sm" id="cmAdd" data-t="add">Add</button></div></div>
+<button class="card r" id="adminLink" data-go="admin" style="width:100%"><span class="r" style="justify-content:flex-start;gap:10px"><svg class="i"><use href="#shield"/></svg><b data-t="admin">Admin panel</b></span><span class="m">›</span></button>
+<button class="card r" id="alertsLink" data-go="alerts" style="width:100%"><span class="r" style="justify-content:flex-start;gap:10px"><svg class="i"><use href="#bell"/></svg><b data-t="alertsT">Budget, alerts and setup</b></span><span class="m">›</span></button>
+
+<button class="card r" data-go="login" style="width:100%"><span class="r dn" style="justify-content:flex-start;gap:10px"><svg class="i"><use href="#out"/></svg><b data-t="logout">Log out</b></span></button>
+</section>
+
+<section class="s" id="admin">
+<div class="r"><button class="sq" data-go="profile" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><h1 data-t="admin">Admin panel</h1><span style="width:46px"></span></div>
+<div class="card"><h2 data-t="members">Members</h2><div id="ml"></div><div class="m" id="mNote" style="margin-top:8px"></div></div>
+<div class="card"><h2 data-t="rolesT">Roles and access</h2><table class="lt" style="margin-top:8px"><thead><tr><th></th><th>Super</th><th>Admin</th><th>Member</th><th>View</th></tr></thead><tbody>
+<tr><td>View data</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr><tr><td>Add entries</td><td>✓</td><td>✓</td><td>✓</td><td>—</td></tr><tr><td>Edit own budget</td><td>✓</td><td>✓</td><td>✓</td><td>—</td></tr><tr><td>Categories</td><td>✓</td><td>✓</td><td>✓</td><td>—</td></tr><tr><td>Change roles</td><td>✓</td><td>—</td><td>—</td><td>—</td></tr></tbody></table></div>
+</section>
+<section class="s" id="udata">
+<div class="r"><button class="sq" data-go="admin" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><h1 id="uT"></h1><span style="width:46px"></span></div>
+<div class="card"><b id="uN"></b><div class="m" id="uE"></div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2 data-t="editbudget">Edit budget</h2>
+<label class="m" for="uLimit" data-t="limit">Monthly limit</label><input id="uLimit" type="number" inputmode="numeric">
+<label class="m" for="uAlert"><span data-t="alertat">Alert at</span> <b id="uAlertOut"></b></label><input id="uAlert" type="range" min="50" max="100" step="5">
+<div class="r"><b data-t="alertOn">Alert me near the limit</b><button class="sw" role="switch" id="uOn" aria-checked="true" aria-label="Budget alert"><i></i></button></div>
+<label class="m" for="uPLim" data-t="pLimL">Pawna limit</label><input id="uPLim" type="number" inputmode="numeric">
+<div class="r"><b data-t="a2">Pawna alert (amount)</b><button class="sw" role="switch" id="uPOn" aria-checked="false" aria-label="Pawna alert"><i></i></button></div>
+<label class="m" for="uDLim" data-t="dLimL">Dhar limit</label><input id="uDLim" type="number" inputmode="numeric">
+<div class="r"><b data-t="a3">Dhar alert (amount)</b><button class="sw" role="switch" id="uDOn" aria-checked="false" aria-label="Dhar alert"><i></i></button></div>
+<button class="btn" id="uSave" data-t="saveBudget">Save settings</button></div>
+<div id="uData" style="display:flex;flex-direction:column;gap:14px"></div>
+</section>
+</div>
+
+<nav id="nav" aria-label="Main menu">
+<button data-go="home" data-n="home"><svg class="i"><use href="#home"/></svg><span data-t="home">Home</span></button>
+<button data-go="history" data-n="history"><svg class="i"><use href="#list"/></svg><span data-t="history">History</span></button>
+<button id="fab" data-go="add" aria-label="Add entry"><svg class="i" style="width:28px;height:28px;stroke-width:2.8"><use href="#plus"/></svg></button>
+<button data-go="reports" data-n="reports"><svg class="i"><use href="#chart"/></svg><span data-t="reports">Reports</span></button>
+<button data-go="profile" data-n="profile"><svg class="i"><use href="#user"/></svg><span data-t="profile">Profile</span></button>
+</nav>
+<div class="ov" id="ov"><div class="pc" role="dialog" aria-modal="true" aria-labelledby="pn"><div class="hd"><button class="x" id="px" aria-label="Close"><svg class="i"><use href="#x"/></svg></button><button class="x" id="pedit" aria-label="Edit"><svg class="i" style="width:18px;height:18px"><use href="#edit"/></svg></button><span id="pt" style="font-size:12px;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:10px"></span><div id="pa" style="font-size:34px;font-weight:800;margin-top:10px"></div><div id="pn" style="opacity:.9"></div></div><div class="bd2" id="pb"></div><div class="r" id="pft" style="padding:12px 18px 18px;gap:10px"></div></div></div>
+<div id="toast" role="status"></div>
+
+<div id="pdfSrc" style="position:absolute;left:-10000px;top:0;width:794px;background:#fff;color:#14201B;padding:32px;font-family:system-ui,sans-serif"></div>
+<script src="app.js"></script>
+</body>
+</html>
